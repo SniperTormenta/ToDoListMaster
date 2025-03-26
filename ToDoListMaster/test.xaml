@@ -1,0 +1,29 @@
+﻿<Window x:Class="ToDoListMaster.test"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ToDoListMaster"
+        mc:Ignorable="d"
+        Title="test" Height="450" Width="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Боковое меню -->
+        <Expander x:Name="SideMenu" Grid.Column="0" ExpandDirection="Right" IsExpanded="False">
+            <StackPanel Width="200" Background="LightGray">
+                <Button Content="Главная" Width="200" Height="50"/>
+                <Button Content="Календарь" Width="200" Height="50"/>
+                <Button Content="Настройки" Width="200" Height="50"/>
+            </StackPanel>
+        </Expander>
+
+        <!-- Основное содержимое -->
+        <Grid Grid.Column="1">
+            <!-- Текущий контент окна -->
+        </Grid>
+    </Grid>
+</Window>
