@@ -1,0 +1,109 @@
+﻿<Window x:Class="ToDoListMaster.ProfileWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ToDoListMaster"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"
+        Title="ProfileWindow" Height="900" Width="460">
+    <materialDesign:DrawerHost x:Name="ProfileDrawerHost">
+        <!-- Боковое меню -->
+        <materialDesign:DrawerHost.LeftDrawerContent>
+            <Grid Width="390" Background="White">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="60"/>
+                    <!-- Заголовок -->
+                    <RowDefinition Height="*"/>
+                    <!-- Пункты меню -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- Версия -->
+                </Grid.RowDefinitions>
+
+                <!-- Аквамариновый прямоугольник с заголовком -->
+                <Border Grid.Row="0" Background="#00CED1">
+                    <TextBlock Text="ToDoList Master" FontSize="20" FontWeight="Bold" Foreground="White" 
+                               VerticalAlignment="Center" HorizontalAlignment="Left" Margin="20,0,0,0"/>
+                </Border>
+
+                <!-- Пункты меню -->
+                <ListBox Grid.Row="1" BorderThickness="0" Background="Transparent">
+                    <ListBoxItem Height="50">
+                        <TextBlock Text="Избранные задачи" FontSize="16" Margin="20,0,0,0"/>
+                    </ListBoxItem>
+                    <ListBoxItem Height="50">
+                        <TextBlock Text="Архив" FontSize="16" Margin="20,0,0,0"/>
+                    </ListBoxItem>
+                    <ListBoxItem Height="50">
+                        <TextBlock Text="Обратная связь" FontSize="16" Margin="20,0,0,0"/>
+                    </ListBoxItem>
+                </ListBox>
+
+                <!-- Версия приложения -->
+                <TextBlock Grid.Row="2" Text="Beta 1.0.0" FontSize="12" Foreground="#808080" 
+                           HorizontalAlignment="Left" Margin="20,0,0,10"/>
+            </Grid>
+        </materialDesign:DrawerHost.LeftDrawerContent>
+
+        <!-- Основное содержимое -->
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <!-- Круглый элемент для фото -->
+                <RowDefinition Height="Auto"/>
+                <!-- Завершённые и незавершённые задачи -->
+                <RowDefinition Height="*"/>
+                <!-- Пространство -->
+                <RowDefinition Height="Auto"/>
+                <!-- Нижняя панель -->
+            </Grid.RowDefinitions>
+
+            <!-- Круглый элемент для фотографии -->
+            <Border Grid.Row="0" Width="150" Height="150" Background="#eaf4fd" CornerRadius="75" 
+                    HorizontalAlignment="Center" Margin="0,40,0,20">
+  
+                <TextBlock Text="Фото" FontSize="16" Foreground="Gray" 
+                           VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            </Border>
+
+            <!-- Завершённые и незавершённые задачи (слева и справа) -->
+            <Grid Grid.Row="1" Margin="20,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Количество завершённых задач -->
+                <Border Grid.Column="0" Background="#E0F7FA" CornerRadius="10" Margin="0,0,5,0" Padding="15">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <TextBlock Text="Завершённые: " FontSize="16"/>
+                        <TextBlock x:Name="CompletedTasksTextBlock" Text="0" FontSize="16" FontWeight="Bold"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Количество незавершённых задач -->
+                <Border Grid.Column="1" Background="#E0F7FA" CornerRadius="10" Margin="5,0,0,0" Padding="15">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <TextBlock Text="Незавершённые: " FontSize="16"/>
+                        <TextBlock x:Name="IncompleteTasksTextBlock" Text="0" FontSize="16" FontWeight="Bold"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- Нижняя панель навигации -->
+            <Grid Grid.Row="3" Background="White" Height="60">
+                <Grid.Effect>
+                    <DropShadowEffect Color="Black" Direction="270" ShadowDepth="2" BlurRadius="10" Opacity="0.3"/>
+                </Grid.Effect>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Button Content="≡" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20"
+                            Command="{x:Static materialDesign:DrawerHost.OpenDrawerCommand}" 
+                            CommandTarget="{Binding ElementName=ProfileDrawerHost}"/>
+                    <Button Content="📋" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20" Click="OpenMainWindowButton_Click"/>
+                    <Button Content="📅" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20" Click="OpenCalendarWindowButton_Click"/>
+                    <Button Content="👤" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20"/>
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </materialDesign:DrawerHost>
+</Window>

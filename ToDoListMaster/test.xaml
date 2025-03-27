@@ -5,24 +5,20 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ToDoListMaster"
         mc:Ignorable="d"
-        Title="test" Height="450" Width="800">
+        Title="test" Height="900" Width="460">
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-
         <!-- Боковое меню -->
-        <Expander x:Name="SideMenu" Grid.Column="0" ExpandDirection="Right" IsExpanded="False">
-            <StackPanel Width="200" Background="LightGray">
-                <Button Content="Главная" Width="200" Height="50"/>
-                <Button Content="Календарь" Width="200" Height="50"/>
-                <Button Content="Настройки" Width="200" Height="50"/>
-            </StackPanel>
-        </Expander>
+        <StackPanel x:Name="SideMenu" Width="200" Background="LightGray" HorizontalAlignment="Left">
+            <StackPanel.RenderTransform>
+                <TranslateTransform X="-200"/>
+            </StackPanel.RenderTransform>
+            <Button Content="Главная" Width="200" Height="50"/>
+            <Button Content="Календарь" Width="200" Height="50"/>
+            <Button Content="Настройки" Width="200" Height="50"/>
+        </StackPanel>
 
         <!-- Основное содержимое -->
-        <Grid Grid.Column="1">
+        <Grid>
             <!-- Текущий контент окна -->
         </Grid>
     </Grid>

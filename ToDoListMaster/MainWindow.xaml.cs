@@ -22,9 +22,11 @@ namespace ToDoListMaster
     public partial class MainWindow : Window
     {
         public ObservableCollection<TaskItem> Tasks { get; set; }
+        public ObservableCollection<TaskItem> ArchiveTasks { get; set; }
         public ObservableCollection<Category> Categories { get; set; }
         public ICollectionView TaskView { get; set; }
         private const string TasksFilePath = "tasks.json";
+        private const string ArchiveFilePath = "archive.json";
         private const string CategoriesFilePath = "categories.json";
 
         public MainWindow()
@@ -47,7 +49,48 @@ namespace ToDoListMaster
             Tasks = LoadTasks();
             if (Tasks == null)
             {
-                Tasks = new ObservableCollection<TaskItem>();
+                Tasks = new ObservableCollection<TaskItem>
+                {
+                    new TaskItem
+                    {
+                        Title = "Сдать долги по учебе",
+                        DueDate = new DateTime(2024, 10, 15),
+                        CreatedDate = DateTime.Now,
+                        Category = Categories[2],
+                        HasReminder = false,
+                        IsRepeatable = false,
+                        Notes = "Flags/BlueLents.png",
+                        Attachment = null,
+                        IsCompleted = true
+                    },
+                    new TaskItem
+                    {
+                        Title = "Сдать проект",
+                        DueDate = new DateTime(2024, 10, 20),
+                        CreatedDate = DateTime.Now,
+                        Category = Categories[1],
+                        HasReminder = false,
+                        IsRepeatable = false,
+                        Notes = "Flags/BlueLents.png",
+                        Attachment = null,
+                        IsCompleted = false
+                    }
+                };
+            }
+
+            // Загружаем архив
+            ArchiveTasks = LoadArchive();
+            if (ArchiveTasks == null)
+            {
+                ArchiveTasks = new ObservableCollection<TaskItem>();
+            }
+
+            // Переносим завершённые задачи в архив при загрузке
+            var completedTasks = Tasks.Where(t => t.IsCompleted).ToList();
+            foreach (var task in completedTasks)
+            {
+                Tasks.Remove(task);
+                ArchiveTasks.Add(task);
             }
 
             // Создаем ICollectionView для фильтрации задач
@@ -76,7 +119,7 @@ namespace ToDoListMaster
                 var selectedTask = listBox.SelectedItem as TaskItem;
                 if (selectedTask != null)
                 {
-                    var taskDetailsWindow = new TaskDetailsWindow(selectedTask, Categories, Tasks);
+                    var taskDetailsWindow = new TaskDetailsWindow(selectedTask, Categories, Tasks, ArchiveTasks);
                     taskDetailsWindow.ShowDialog();
                 }
             }
@@ -103,6 +146,7 @@ namespace ToDoListMaster
         private void MainWindow_Closing(object sender, CancelEventArgs e)
         {
             SaveTasks();
+            SaveArchive();
             SaveCategories();
         }
 
@@ -126,20 +170,42 @@ namespace ToDoListMaster
                 if (File.Exists(TasksFilePath))
                 {
                     string json = File.ReadAllText(TasksFilePath);
-                    var tasks = JsonConvert.DeserializeObject<ObservableCollection<TaskItem>>(json);
-                    foreach (var task in tasks)
-                    {
-                        if (string.IsNullOrEmpty(task.Notes))
-                        {
-                            task.Notes = "Flags/BlueLents.png";
-                        }
-                    }
-                    return tasks;
+                    return JsonConvert.DeserializeObject<ObservableCollection<TaskItem>>(json);
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error loading tasks: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            return null;
+        }
+
+        private void SaveArchive()
+        {
+            try
+            {
+                string json = JsonConvert.SerializeObject(ArchiveTasks, Formatting.Indented);
+                File.WriteAllText(ArchiveFilePath, json);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error saving archive: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private ObservableCollection<TaskItem> LoadArchive()
+        {
+            try
+            {
+                if (File.Exists(ArchiveFilePath))
+                {
+                    string json = File.ReadAllText(ArchiveFilePath);
+                    return JsonConvert.DeserializeObject<ObservableCollection<TaskItem>>(json);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading archive: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             return null;
         }
@@ -174,19 +240,25 @@ namespace ToDoListMaster
             return null;
         }
 
-        private void OpenMainWindowButton_Click(object sender, RoutedEventArgs e)
-        {
-            var newMainWindow = new MainWindow();
-            newMainWindow.Show();
-            this.Close();
-        }
-
-        // Открытие окна с календарем
         private void OpenCalendarWindowButton_Click(object sender, RoutedEventArgs e)
         {
-            var calendarWindow = new CalendarWindow(Tasks, Categories);
-            calendarWindow.ShowDialog();
-            TaskView.Refresh(); // Обновляем список задач в MainWindow после закрытия CalendarWindow
+            var calendarWindow = new CalendarWindow(Tasks, ArchiveTasks, Categories);
+            calendarWindow.Show();
+            Close();
+        }
+
+        private void OpenProfileWindowButton_Click(object sender, RoutedEventArgs e)
+        {
+            var profileWindow = new ProfileWindow(Tasks, ArchiveTasks);
+            profileWindow.Show();
+            Close();
+        }
+
+        private void ArchiveMenuItem_Selected(object sender, RoutedEventArgs e)
+        {
+            var archiveWindow = new ArchiveWindow(Tasks, ArchiveTasks, Categories);
+            archiveWindow.Show();
+            Close();
         }
     }
 
@@ -202,6 +274,7 @@ namespace ToDoListMaster
         public string Notes { get; set; } = "Flags/BlueLents.png";
         public string Attachment { get; set; }
         public ObservableCollection<string> SubTasks { get; set; } = new ObservableCollection<string>();
+        public bool IsCompleted { get; set; }
     }
 
     public class Category

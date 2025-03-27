@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Globalization;
 using System.Windows.Data;
 using System.Windows;
+using System.IO;
 
 namespace ToDoListMaster
 {
@@ -30,7 +31,7 @@ namespace ToDoListMaster
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return value == null || string.IsNullOrEmpty(value.ToString()) ? "ДОБАВИТЬ" : value;
+            return value == null || string.IsNullOrEmpty(value.ToString()) ? "Добавить" : value; // Исправлено "ДОБАВИТЬ" на "Добавить"
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

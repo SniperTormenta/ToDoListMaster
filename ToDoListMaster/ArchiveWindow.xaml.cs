@@ -17,52 +17,45 @@ using System.IO;
 
 namespace ToDoListMaster
 {
-    public partial class CalendarWindow : Window
+    public partial class ArchiveWindow : Window
     {
         private ObservableCollection<TaskItem> _tasks;
         private ObservableCollection<TaskItem> _archiveTasks;
         private ObservableCollection<Category> _categories;
-        private DateTime _selectedDate;
         private const string TasksFilePath = "tasks.json";
         private const string ArchiveFilePath = "archive.json";
 
-        public CalendarWindow(ObservableCollection<TaskItem> tasks, ObservableCollection<TaskItem> archiveTasks, ObservableCollection<Category> categories)
+        public ArchiveWindow(ObservableCollection<TaskItem> tasks, ObservableCollection<TaskItem> archiveTasks, ObservableCollection<Category> categories)
         {
             InitializeComponent();
             _tasks = tasks;
             _archiveTasks = archiveTasks;
             _categories = categories;
-            _selectedDate = DateTime.Today;
-            CalendarControl.SelectedDate = _selectedDate;
-            UpdateTaskList();
+            ArchiveListBox.ItemsSource = _archiveTasks;
         }
 
-        private void CalendarControl_SelectedDatesChanged(object sender, SelectionChangedEventArgs e)
+        private void ArchiveListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (CalendarControl.SelectedDate.HasValue)
+            var listBox = sender as ListBox;
+            if (listBox != null && listBox.SelectedItem != null)
             {
-                _selectedDate = CalendarControl.SelectedDate.Value;
-                UpdateTaskList();
+                var selectedTask = listBox.SelectedItem as TaskItem;
+                if (selectedTask != null)
+                {
+                    // Возвращаем задачу в активные
+                    selectedTask.IsCompleted = false;
+                    _archiveTasks.Remove(selectedTask);
+                    _tasks.Add(selectedTask);
+                    MessageBox.Show("Задача возвращена в активные.");
+                    // Сохраняем изменения в файлы перед открытием MainWindow
+                    SaveTasks();
+                    SaveArchive();
+                    var mainWindow = new MainWindow();
+                    mainWindow.Show();
+                    Close();
+
+                }
             }
-        }
-
-        private void UpdateTaskList()
-        {
-            var tasksForDate = _tasks.Where(t => t.DueDate.Date == _selectedDate.Date).ToList();
-            TasksListBox.ItemsSource = tasksForDate;
-        }
-
-        private void AddTaskButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (!CalendarControl.SelectedDate.HasValue)
-            {
-                MessageBox.Show("Пожалуйста, выберите дату.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            var addTaskWindow = new AddTaskWindow(_categories, _tasks, CalendarControl.SelectedDate.Value);
-            addTaskWindow.ShowDialog();
-            UpdateTaskList();
         }
 
         private void SaveTasks()
@@ -93,20 +86,40 @@ namespace ToDoListMaster
 
         private void OpenMainWindowButton_Click(object sender, RoutedEventArgs e)
         {
+            // Сохраняем изменения перед открытием MainWindow
             SaveTasks();
             SaveArchive();
+
             var mainWindow = new MainWindow();
             mainWindow.Show();
             Close();
         }
 
-        private void OpenProfileWindowButton_Click(object sender, RoutedEventArgs e)
+        private void OpenCalendarWindowButton_Click(object sender, RoutedEventArgs e)
         {
+            // Сохраняем изменения перед открытием CalendarWindow
             SaveTasks();
             SaveArchive();
+
+            var calendarWindow = new CalendarWindow(_tasks, _archiveTasks, _categories);
+            calendarWindow.Show();
+            Close();
+        }
+
+        private void OpenProfileWindowButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Сохраняем изменения перед открытием ProfileWindow
+            SaveTasks();
+            SaveArchive();
+
             var profileWindow = new ProfileWindow(_tasks, _archiveTasks);
             profileWindow.Show();
             Close();
+        }
+
+        private void ArchiveMenuItem_Selected(object sender, RoutedEventArgs e)
+        {
+            // Мы уже в окне архива, ничего не делаем
         }
     }
 }

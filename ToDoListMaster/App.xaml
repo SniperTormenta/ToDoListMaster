@@ -9,5 +9,6 @@
         <local:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <local:NullToHiddenConverter x:Key="NullToHiddenConverter"/>
         <local:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+        
     </Application.Resources>
 </Application>

@@ -17,52 +17,39 @@ using System.IO;
 
 namespace ToDoListMaster
 {
-    public partial class CalendarWindow : Window
+    public partial class ProfileWindow : Window
     {
         private ObservableCollection<TaskItem> _tasks;
         private ObservableCollection<TaskItem> _archiveTasks;
         private ObservableCollection<Category> _categories;
-        private DateTime _selectedDate;
         private const string TasksFilePath = "tasks.json";
         private const string ArchiveFilePath = "archive.json";
 
-        public CalendarWindow(ObservableCollection<TaskItem> tasks, ObservableCollection<TaskItem> archiveTasks, ObservableCollection<Category> categories)
+        public ProfileWindow(ObservableCollection<TaskItem> tasks, ObservableCollection<TaskItem> archiveTasks)
         {
             InitializeComponent();
             _tasks = tasks;
             _archiveTasks = archiveTasks;
-            _categories = categories;
-            _selectedDate = DateTime.Today;
-            CalendarControl.SelectedDate = _selectedDate;
-            UpdateTaskList();
-        }
-
-        private void CalendarControl_SelectedDatesChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (CalendarControl.SelectedDate.HasValue)
+            _categories = LoadCategories();
+            if (_categories == null || _categories.Count == 0)
             {
-                _selectedDate = CalendarControl.SelectedDate.Value;
-                UpdateTaskList();
+                _categories = new ObservableCollection<Category>
+                {
+                    new Category { Id = 1, Name = "ВСЕ" },
+                    new Category { Id = 2, Name = "РАБОТА" },
+                    new Category { Id = 3, Name = "УЧЕБА" }
+                };
             }
+            UpdateTaskCounts();
         }
 
-        private void UpdateTaskList()
+        private void UpdateTaskCounts()
         {
-            var tasksForDate = _tasks.Where(t => t.DueDate.Date == _selectedDate.Date).ToList();
-            TasksListBox.ItemsSource = tasksForDate;
-        }
+            var completedTasks = _archiveTasks.Count;
+            var incompleteTasks = _tasks.Count(t => !t.IsCompleted);
 
-        private void AddTaskButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (!CalendarControl.SelectedDate.HasValue)
-            {
-                MessageBox.Show("Пожалуйста, выберите дату.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            var addTaskWindow = new AddTaskWindow(_categories, _tasks, CalendarControl.SelectedDate.Value);
-            addTaskWindow.ShowDialog();
-            UpdateTaskList();
+            CompletedTasksTextBlock.Text = completedTasks.ToString();
+            IncompleteTasksTextBlock.Text = incompleteTasks.ToString();
         }
 
         private void SaveTasks()
@@ -100,13 +87,30 @@ namespace ToDoListMaster
             Close();
         }
 
-        private void OpenProfileWindowButton_Click(object sender, RoutedEventArgs e)
+        private void OpenCalendarWindowButton_Click(object sender, RoutedEventArgs e)
         {
             SaveTasks();
             SaveArchive();
-            var profileWindow = new ProfileWindow(_tasks, _archiveTasks);
-            profileWindow.Show();
+            var calendarWindow = new CalendarWindow(_tasks, _archiveTasks, _categories);
+            calendarWindow.Show();
             Close();
+        }
+
+        private ObservableCollection<Category> LoadCategories()
+        {
+            try
+            {
+                if (System.IO.File.Exists("categories.json"))
+                {
+                    string json = System.IO.File.ReadAllText("categories.json");
+                    return Newtonsoft.Json.JsonConvert.DeserializeObject<ObservableCollection<Category>>(json);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading categories: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            return null;
         }
     }
 }

@@ -4,144 +4,183 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ToDoListMaster"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
         Title="CalendarWindow" Height="900" Width="460">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
+    <materialDesign:DrawerHost x:Name="CalendarDrawerHost">
+        <!-- Боковое меню -->
+        <materialDesign:DrawerHost.LeftDrawerContent>
+            <Grid Width="390" Background="White">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="60"/>
+                    <!-- Заголовок -->
+                    <RowDefinition Height="*"/>
+                    <!-- Пункты меню -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- Версия -->
+                </Grid.RowDefinitions>
+
+                <!-- Аквамариновый прямоугольник с заголовком -->
+                <Border Grid.Row="0" Background="#00CED1">
+                    <TextBlock Text="ToDoList Master" FontSize="20" FontWeight="Bold" Foreground="White" 
+                               VerticalAlignment="Center" HorizontalAlignment="Left" Margin="20,0,0,0"/>
+                </Border>
+
+                <!-- Пункты меню -->
+                <ListBox Grid.Row="1" BorderThickness="0" Background="Transparent">
+                    <ListBoxItem Height="50">
+                        <TextBlock Text="Избранные задачи" FontSize="16" Margin="20,0,0,0"/>
+                    </ListBoxItem>
+                    <ListBoxItem Height="50">
+                        <TextBlock Text="Архив" FontSize="16" Margin="20,0,0,0"/>
+                    </ListBoxItem>
+                    <ListBoxItem Height="50">
+                        <TextBlock Text="Обратная связь" FontSize="16" Margin="20,0,0,0"/>
+                    </ListBoxItem>
+                </ListBox>
+
+                <!-- Версия приложения -->
+                <TextBlock Grid.Row="2" Text="Beta 1.0.0" FontSize="12" Foreground="#808080" 
+                           HorizontalAlignment="Left" Margin="20,0,0,10"/>
+            </Grid>
+        </materialDesign:DrawerHost.LeftDrawerContent>
+
+        <!-- Основное содержимое -->
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <!-- Календарь -->
+                <RowDefinition Height="*"/>
+                <!-- Список задач -->
+                <RowDefinition Height="Auto"/>
+                <!-- Кнопка "Добавить" -->
+                <RowDefinition Height="Auto"/>
+                <!-- Нижняя панель -->
+            </Grid.RowDefinitions>
+
             <!-- Календарь -->
-            <RowDefinition Height="*"/>
-            <!-- Список задач -->
-            <RowDefinition Height="Auto"/>
+            <Calendar x:Name="CalendarControl" Grid.Row="0" Margin="20" Height="400" 
+                      SelectionMode="SingleDate" SelectedDatesChanged="CalendarControl_SelectedDatesChanged">
+                <Calendar.Style>
+                    <Style TargetType="Calendar">
+                        <Setter Property="FontSize" Value="16"/>
+                        <Setter Property="Background" Value="White"/>
+                        <Setter Property="BorderBrush" Value="#4FC3F7"/>
+                        <Setter Property="BorderThickness" Value="2"/>
+                        <Setter Property="CalendarDayButtonStyle">
+                            <Setter.Value>
+                                <Style TargetType="CalendarDayButton">
+                                    <Setter Property="FontSize" Value="16"/>
+                                    <Setter Property="Width" Value="50"/>
+                                    <Setter Property="Height" Value="50"/>
+                                    <Setter Property="Margin" Value="2"/>
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="BorderBrush" Value="Transparent"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="#4FC3F7"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                            <Setter Property="BorderBrush" Value="#4FC3F7"/>
+                                            <Setter Property="BorderThickness" Value="2"/>
+                                        </Trigger>
+                                        <Trigger Property="IsBlackedOut" Value="True">
+                                            <Setter Property="Foreground" Value="LightGray"/>
+                                        </Trigger>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#E0F7FA"/>
+                                            <Setter Property="BorderBrush" Value="#4FC3F7"/>
+                                            <Setter Property="BorderThickness" Value="1"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Setter.Value>
+                        </Setter>
+                        <Setter Property="CalendarButtonStyle">
+                            <Setter.Value>
+                                <Style TargetType="CalendarButton">
+                                    <Setter Property="FontSize" Value="16"/>
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="BorderBrush" Value="Transparent"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#E0F7FA"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Calendar.Style>
+            </Calendar>
+
+            <!-- Список задач на выбранную дату -->
+            <ListBox x:Name="TasksListBox" Grid.Row="1" Background="White" BorderThickness="0" Margin="20,0,20,10">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="#E0F7FA" CornerRadius="10" Margin="5" Padding="10" HorizontalAlignment="Stretch">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Orientation="Horizontal" Grid.Column="0">
+                                    <TextBlock Text="{Binding Title}" FontSize="16" Margin="5"/>
+                                    <TextBlock Text="{Binding Category.Name}" FontSize="14" Foreground="Blue" Margin="5"/>
+                                </StackPanel>
+                                <Image Grid.Column="1" Width="20" Height="20" Margin="5" Source="{Binding Notes}"/>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="Transparent"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+            </ListBox>
+
             <!-- Кнопка "Добавить" -->
-            <RowDefinition Height="Auto"/>
-            <!-- Нижняя панель -->
-        </Grid.RowDefinitions>
+            <Button x:Name="AddTaskButton" Grid.Row="2" Content="+" Width="60" Height="60" Background="#4FC3F7" Foreground="White" FontSize="30" 
+                    BorderThickness="0" HorizontalAlignment="Right" Margin="0,0,23,10" Click="AddTaskButton_Click">
+                <Button.Effect>
+                    <DropShadowEffect Color="Black" ShadowDepth="5" BlurRadius="10" Opacity="0.5"/>
+                </Button.Effect>
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}" CornerRadius="30">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Button.Style>
+            </Button>
 
-        <!-- Календарь -->
-        <Calendar x:Name="CalendarControl" Grid.Row="0" Margin="20" Height="400" 
-                  SelectionMode="SingleDate" SelectedDatesChanged="CalendarControl_SelectedDatesChanged">
-            <Calendar.Style>
-                <Style TargetType="Calendar">
-                    <!-- Увеличиваем шрифт и стилизуем элементы -->
-                    <Setter Property="FontSize" Value="16"/>
-                    <Setter Property="Background" Value="White"/>
-                    <Setter Property="BorderBrush" Value="#4FC3F7"/>
-                    <Setter Property="BorderThickness" Value="2"/>
-                    <Setter Property="CalendarDayButtonStyle">
-                        <Setter.Value>
-                            <Style TargetType="CalendarDayButton">
-                                <Setter Property="FontSize" Value="16"/>
-                                <Setter Property="Width" Value="50"/>
-                                <Setter Property="Height" Value="50"/>
-                                <Setter Property="Margin" Value="2"/>
-                                <Setter Property="Background" Value="Transparent"/>
-                                <Setter Property="BorderBrush" Value="Transparent"/>
-                                <Style.Triggers>
-                                    <!-- Стиль для выбранного дня -->
-                                    <Trigger Property="IsSelected" Value="True">
-                                        <Setter Property="Background" Value="#4FC3F7"/>
-                                        <Setter Property="Foreground" Value="White"/>
-                                        <Setter Property="BorderBrush" Value="#4FC3F7"/>
-                                        <Setter Property="BorderThickness" Value="2"/>
-                                    </Trigger>
-                                    <!-- Стиль для дней из других месяцев -->
-                                    <Trigger Property="IsBlackedOut" Value="True">
-                                        <Setter Property="Foreground" Value="LightGray"/>
-                                    </Trigger>
-                                    <!-- Стиль при наведении -->
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="#E0F7FA"/>
-                                        <Setter Property="BorderBrush" Value="#4FC3F7"/>
-                                        <Setter Property="BorderThickness" Value="1"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Setter.Value>
-                    </Setter>
-                    <Setter Property="CalendarButtonStyle">
-                        <Setter.Value>
-                            <Style TargetType="CalendarButton">
-                                <Setter Property="FontSize" Value="16"/>
-                                <Setter Property="Background" Value="Transparent"/>
-                                <Setter Property="BorderBrush" Value="Transparent"/>
-                                <Style.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="#E0F7FA"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
-            </Calendar.Style>
-        </Calendar>
-
-        <!-- Список задач на выбранную дату -->
-        <ListBox x:Name="TasksListBox" Grid.Row="1" Background="White" BorderThickness="0" Margin="20,0,20,10">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <Border Background="#E0F7FA" CornerRadius="10" Margin="5" Padding="10" HorizontalAlignment="Stretch">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Orientation="Horizontal" Grid.Column="0">
-                                <TextBlock Text="{Binding Title}" FontSize="16" Margin="5"/>
-                                <TextBlock Text="{Binding Category.Name}" FontSize="14" Foreground="Blue" Margin="5"/>
-                            </StackPanel>
-                            <Image Grid.Column="1" Width="20" Height="20" Margin="5" Source="{Binding Notes}"/>
-                        </Grid>
-                    </Border>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-            <ListBox.ItemContainerStyle>
-                <Style TargetType="ListBoxItem">
-                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                    <Setter Property="Background" Value="Transparent"/>
-                    <Setter Property="BorderThickness" Value="0"/>
-                    <Style.Triggers>
-                        <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="Background" Value="Transparent"/>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </ListBox.ItemContainerStyle>
-        </ListBox>
-
-        <!-- Кнопка "Добавить" -->
-        <Button x:Name="AddTaskButton" Grid.Row="2" Content="+" Width="60" Height="60" Background="#4FC3F7" Foreground="White" FontSize="30" 
-                BorderThickness="0" HorizontalAlignment="Right" Margin="0,0,23,10" Click="AddTaskButton_Click">
-            <Button.Effect>
-                <DropShadowEffect Color="Black" ShadowDepth="5" BlurRadius="10" Opacity="0.5"/>
-            </Button.Effect>
-            <Button.Style>
-                <Style TargetType="Button">
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="Button">
-                                <Border Background="{TemplateBinding Background}" CornerRadius="30">
-                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
-            </Button.Style>
-        </Button>
-
-        <!-- Нижняя панель навигации -->
-        <Grid Grid.Row="3" Background="White" Height="60">
-            <Grid.Effect>
-                <DropShadowEffect Color="Black" Direction="270" ShadowDepth="2" BlurRadius="10" Opacity="0.3"/>
-            </Grid.Effect>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button Content="≡" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20"/>
-                <Button Content="📋" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20" Click="OpenMainWindowButton_Click"/>
-                <Button Content="📅" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20"/>
-                <Button Content="👤" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20"/>
-            </StackPanel>
+            <!-- Нижняя панель навигации -->
+            <Grid Grid.Row="3" Background="White" Height="60">
+                <Grid.Effect>
+                    <DropShadowEffect Color="Black" Direction="270" ShadowDepth="2" BlurRadius="10" Opacity="0.3"/>
+                </Grid.Effect>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Button Content="≡" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20"
+                            Command="{x:Static materialDesign:DrawerHost.OpenDrawerCommand}" 
+                            CommandTarget="{Binding ElementName=CalendarDrawerHost}"/>
+                    <Button Content="📋" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20" Click="OpenMainWindowButton_Click"/>
+                    <Button Content="📅" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20"/>
+                    <Button Content="👤" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20" Click="OpenProfileWindowButton_Click"/>
+                </StackPanel>
+            </Grid>
         </Grid>
-    </Grid>
+    </materialDesign:DrawerHost>
 </Window>

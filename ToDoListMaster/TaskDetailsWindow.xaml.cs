@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -14,6 +15,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.IO;
 
 namespace ToDoListMaster
 {
@@ -21,15 +23,20 @@ namespace ToDoListMaster
     {
         private TaskItem _task;
         private ObservableCollection<Category> _categories;
-        private ObservableCollection<TaskItem> _tasks; // Добавляем коллекцию задач
+        private ObservableCollection<TaskItem> _tasks;
+        private ObservableCollection<TaskItem> _archiveTasks;
         private Timer _reminderTimer;
+        private const string TasksFilePath = "tasks.json";
+        private const string ArchiveFilePath = "archive.json";
 
-        public TaskDetailsWindow(TaskItem task, ObservableCollection<Category> categories, ObservableCollection<TaskItem> tasks)
+        public TaskDetailsWindow(TaskItem task, ObservableCollection<Category> categories,
+            ObservableCollection<TaskItem> tasks, ObservableCollection<TaskItem> archiveTasks)
         {
             InitializeComponent();
             _task = task;
             _categories = categories;
-            _tasks = tasks; // Сохраняем коллекцию задач
+            _tasks = tasks;
+            _archiveTasks = archiveTasks;
             DataContext = _task;
 
             // Привязываем категории к ComboBox
@@ -49,9 +56,60 @@ namespace ToDoListMaster
             }
             else
             {
-                // Если напоминание не установлено, показываем панель установки
                 ReminderSetPanel.Visibility = Visibility.Visible;
                 ReminderDisplayPanel.Visibility = Visibility.Collapsed;
+            }
+
+            // Подписываемся на изменение чекбокса
+            IsCompletedCheckBox.Checked += IsCompletedCheckBox_Checked;
+            IsCompletedCheckBox.Unchecked += IsCompletedCheckBox_Unchecked;
+        }
+
+        private void IsCompletedCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            if (_task.IsCompleted)
+            {
+                // Переносим задачу в архив
+                _tasks.Remove(_task);
+                _archiveTasks.Add(_task);
+                MessageBox.Show("Задача завершена и перемещена в архив.");
+
+                // Сохраняем изменения
+                SaveTasks();
+                SaveArchive();
+
+                Close();
+            }
+        }
+
+        private void IsCompletedCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            // Ничего не делаем, так как задача уже в активных задачах
+        }
+
+        private void SaveTasks()
+        {
+            try
+            {
+                string json = JsonConvert.SerializeObject(_tasks, Formatting.Indented);
+                File.WriteAllText(TasksFilePath, json);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error saving tasks: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void SaveArchive()
+        {
+            try
+            {
+                string json = JsonConvert.SerializeObject(_archiveTasks, Formatting.Indented);
+                File.WriteAllText(ArchiveFilePath, json);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error saving archive: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -61,21 +119,19 @@ namespace ToDoListMaster
             Close();
         }
 
-        // Удаление задачи
         private void DeleteTaskButton_Click(object sender, RoutedEventArgs e)
         {
-            // Показываем диалог подтверждения
             var result = MessageBox.Show("Вы уверены, что хотите удалить задачу?", "Подтверждение удаления",
                                         MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (result == MessageBoxResult.Yes)
             {
-                _tasks.Remove(_task); // Удаляем задачу из коллекции
-                _reminderTimer.Stop(); // Останавливаем таймер, если он активен
-                Close(); // Закрываем окно
+                _tasks.Remove(_task);
+                _reminderTimer.Stop();
+                SaveTasks();
+                Close();
             }
         }
 
-        // Изменение категории
         private void CategoryComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (CategoryComboBox.SelectedItem is Category selectedCategory)
@@ -84,7 +140,6 @@ namespace ToDoListMaster
             }
         }
 
-        // Добавление подзадачи
         private void AddSubTaskButton_Click(object sender, RoutedEventArgs e)
         {
             var inputDialog = new Window
@@ -112,7 +167,6 @@ namespace ToDoListMaster
             inputDialog.ShowDialog();
         }
 
-        // Удаление подзадачи при двойном клике
         private void SubTasksListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             var listBox = sender as ListBox;
@@ -126,7 +180,6 @@ namespace ToDoListMaster
             }
         }
 
-        // Placeholder для времени напоминания
         private void ReminderTimeTextBox_GotFocus(object sender, RoutedEventArgs e)
         {
             if (ReminderTimeTextBox.Text == "HH:mm")
@@ -145,7 +198,6 @@ namespace ToDoListMaster
             }
         }
 
-        // Установка напоминания
         private void SetReminderButton_Click(object sender, RoutedEventArgs e)
         {
             if (ReminderDatePicker.SelectedDate == null || ReminderTimeTextBox.Text == "HH:mm")
@@ -171,16 +223,12 @@ namespace ToDoListMaster
                 _task.HasReminder = true;
                 _task.ReminderTime = reminderTime;
 
-                // Настраиваем таймер
                 var timeSpan = reminderTime - DateTime.Now;
                 _reminderTimer.Interval = timeSpan.TotalMilliseconds;
                 _reminderTimer.Start();
 
-                // Обновляем отображение
                 ReminderSetPanel.Visibility = Visibility.Collapsed;
                 ReminderDisplayPanel.Visibility = Visibility.Visible;
-                DataContext = null;
-                DataContext = _task;
             }
             catch
             {
@@ -188,18 +236,14 @@ namespace ToDoListMaster
             }
         }
 
-        // Изменение времени напоминания
         private void EditReminderButton_Click(object sender, RoutedEventArgs e)
         {
             _reminderTimer.Stop();
             _task.ReminderTime = null;
             ReminderSetPanel.Visibility = Visibility.Visible;
             ReminderDisplayPanel.Visibility = Visibility.Collapsed;
-            DataContext = null;
-            DataContext = _task;
         }
 
-        // Событие срабатывания таймера
         private void ReminderTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
             _reminderTimer.Stop();
@@ -210,12 +254,9 @@ namespace ToDoListMaster
                 _task.ReminderTime = null;
                 ReminderSetPanel.Visibility = Visibility.Visible;
                 ReminderDisplayPanel.Visibility = Visibility.Collapsed;
-                DataContext = null;
-                DataContext = _task;
             });
         }
 
-        // Выбор флажка для заметок
         private void NotesTextBlock_MouseDown(object sender, MouseButtonEventArgs e)
         {
             var contextMenu = new ContextMenu();
@@ -231,12 +272,10 @@ namespace ToDoListMaster
             foreach (var flag in flags)
             {
                 var menuItem = new MenuItem { Header = flag };
-                var flagPath = flag; // Сохраняем путь для замыкания
+                var flagPath = flag;
                 menuItem.Click += (s, args) =>
                 {
                     _task.Notes = flagPath;
-                    DataContext = null;
-                    DataContext = _task;
                 };
                 contextMenu.Items.Add(menuItem);
             }
@@ -244,7 +283,6 @@ namespace ToDoListMaster
             contextMenu.IsOpen = true;
         }
 
-        // Загрузка изображения для вложения
         private void AttachmentTextBlock_MouseDown(object sender, MouseButtonEventArgs e)
         {
             var openFileDialog = new OpenFileDialog
@@ -256,8 +294,6 @@ namespace ToDoListMaster
             if (openFileDialog.ShowDialog() == true)
             {
                 _task.Attachment = openFileDialog.FileName;
-                DataContext = null;
-                DataContext = _task;
             }
         }
     }
