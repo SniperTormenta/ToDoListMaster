@@ -7,8 +7,8 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
         Title="MainWindow" Height="900" Width="460">
-    <materialDesign:DrawerHost x:Name="MainDrawerHost">
-        <!-- Боковое меню -->
+    <materialDesign:DrawerHost x:Name="MainDrawerHost" OverlayBackground="#80000000">
+        <!-- Боковое меню слева -->
         <materialDesign:DrawerHost.LeftDrawerContent>
             <Grid Width="390" Background="White">
                 <Grid.RowDefinitions>
@@ -45,6 +45,48 @@
             </Grid>
         </materialDesign:DrawerHost.LeftDrawerContent>
 
+        <!-- Нижнее меню для добавления задачи -->
+        <materialDesign:DrawerHost.BottomDrawerContent>
+            <Grid Height="400" Background="White">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Заголовок -->
+                <TextBlock Grid.Row="0" Text="Добавить задачу" FontSize="20" FontWeight="Bold" 
+                           Margin="20,10,0,10" HorizontalAlignment="Left"/>
+
+                <!-- Форма для добавления задачи -->
+                <StackPanel Grid.Row="1" Margin="20">
+                    <TextBlock Text="Название задачи" FontSize="16" Margin="0,0,0,5"/>
+                    <TextBox x:Name="TaskTitleTextBox" Width="300" Height="30" FontSize="14" Margin="0,0,0,10"/>
+
+                    <TextBlock Text="Категория" FontSize="16" Margin="0,0,0,5"/>
+                    <ComboBox x:Name="TaskCategoryComboBox" Width="300" Height="30" FontSize="14" Margin="0,0,0,10"
+                              ItemsSource="{Binding Categories}" DisplayMemberPath="Name" SelectedValuePath="Id"/>
+
+                    <TextBlock Text="Дата выполнения" FontSize="16" Margin="0,0,0,5"/>
+                    <DatePicker x:Name="TaskDueDatePicker" Width="300" Height="30" FontSize="14" Margin="0,0,0,10"/>
+
+                    <CheckBox x:Name="TaskHasReminderCheckBox" Content="Установить напоминание" FontSize="14" Margin="0,0,0,10"/>
+                    <CheckBox x:Name="TaskIsRepeatableCheckBox" Content="Повторяющаяся задача" FontSize="14" Margin="0,0,0,10"/>
+                </StackPanel>
+
+                <!-- Кнопки -->
+                <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,10">
+                    <Button x:Name="SaveTaskButton" Content="Сохранить" Width="100" Height="30" 
+                            Background="#4FC3F7" Foreground="White" FontSize="14" BorderThickness="0" 
+                            Margin="0,0,10,0" Click="SaveTaskButton_Click"/>
+                    <Button Content="Отмена" Width="100" Height="30" 
+                            Background="Transparent" BorderThickness="0" FontSize="14" 
+                            Command="{x:Static materialDesign:DrawerHost.CloseDrawerCommand}" 
+                            CommandTarget="{Binding ElementName=MainDrawerHost}"/>
+                </StackPanel>
+            </Grid>
+        </materialDesign:DrawerHost.BottomDrawerContent>
+
         <!-- Основное содержимое -->
         <Grid>
             <Grid.RowDefinitions>
@@ -69,16 +111,10 @@
                 <ComboBox x:Name="CategoryFilterComboBox" Width="110" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="16"
                           ItemsSource="{Binding Categories}" DisplayMemberPath="Name" SelectedValuePath="Id" Margin="20,20,0,0"
                           SelectionChanged="CategoryFilterComboBox_SelectionChanged"/>
-
-                <!-- Текущая вкладка "СЕГОДНЯ" с выпадающим меню -->
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,60,317,0">
-                    <TextBlock Text="СЕГОДНЯ" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
-                    <Button Content="▼" Width="30" Height="30" Margin="5" Background="Transparent" BorderThickness="0"/>
-                </StackPanel>
             </Grid>
 
             <!-- Основная область для списка задач -->
-            <ListBox Grid.Row="2" Background="White" BorderThickness="0" Margin="10,37,10,10" 
+            <ListBox x:Name="TaskListBox" Grid.Row="2" Background="White" BorderThickness="0" Margin="10,37,10,10" 
                      ItemsSource="{Binding TaskView}" MouseDoubleClick="TaskListBox_MouseDoubleClick">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
@@ -119,8 +155,7 @@
                 </Grid.Effect>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <Button Content="≡" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20"
-                            Command="{x:Static materialDesign:DrawerHost.OpenDrawerCommand}" 
-                            CommandTarget="{Binding ElementName=MainDrawerHost}"/>
+                            Click="OpenLeftDrawerButton_Click"/>
                     <!-- Кнопка 📋 не имеет обработчика, так как мы уже в MainWindow -->
                     <Button Content="📋" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20"/>
                     <Button Content="📅" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20" Click="OpenCalendarWindowButton_Click"/>
@@ -128,9 +163,10 @@
                 </StackPanel>
             </Grid>
 
-            <!-- Плавающая кнопка "+" -->
-            <Button Content="+" Width="60" Height="60" Background="#4FC3F7" Foreground="White" FontSize="30" 
-                    BorderThickness="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,23,21" Click="AddTaskButton_Click" Grid.Row="2">
+            <!-- Плавающая кнопка "+" для открытия нижнего меню -->
+            <Button x:Name="OpenAddTaskDrawerButton" Content="+" Width="60" Height="60" Background="#4FC3F7" Foreground="White" FontSize="30" 
+                    BorderThickness="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,23,21" Grid.Row="2"
+                    Click="OpenAddTaskDrawerButton_Click">
                 <Button.Effect>
                     <DropShadowEffect Color="Black" ShadowDepth="5" BlurRadius="10" Opacity="0.5"/>
                 </Button.Effect>

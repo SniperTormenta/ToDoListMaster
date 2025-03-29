@@ -1,21 +1,14 @@
-﻿using Newtonsoft.Json;
+﻿using MaterialDesignThemes.Wpf;
+using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.IO;
 
 namespace ToDoListMaster
 {
@@ -93,7 +86,7 @@ namespace ToDoListMaster
                 ArchiveTasks.Add(task);
             }
 
-            // Создаем ICollectionView для фильтрации задач
+            // Создаем ICollectionView для задач
             TaskView = CollectionViewSource.GetDefaultView(Tasks);
             TaskView.Filter = FilterTasks;
 
@@ -104,11 +97,72 @@ namespace ToDoListMaster
             Closing += MainWindow_Closing;
         }
 
-        private void AddTaskButton_Click(object sender, RoutedEventArgs e)
+        private void OpenLeftDrawerButton_Click(object sender, RoutedEventArgs e)
         {
-            var addTaskWindow = new AddTaskWindow(Categories, Tasks);
-            addTaskWindow.ShowDialog();
+            // Открываем левое меню
+            MainDrawerHost.IsLeftDrawerOpen = true;
+            // Закрываем нижнее меню, если оно открыто
+            MainDrawerHost.IsBottomDrawerOpen = false;
+        }
+
+        private void OpenAddTaskDrawerButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Открываем нижнее меню
+            MainDrawerHost.IsBottomDrawerOpen = true;
+            // Закрываем левое меню, если оно открыто
+            MainDrawerHost.IsLeftDrawerOpen = false;
+        }
+
+        private void SaveTaskButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(TaskTitleTextBox.Text))
+            {
+                MessageBox.Show("Пожалуйста, введите название задачи.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (TaskDueDatePicker.SelectedDate == null)
+            {
+                MessageBox.Show("Пожалуйста, выберите дату выполнения.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (TaskCategoryComboBox.SelectedItem == null)
+            {
+                MessageBox.Show("Пожалуйста, выберите категорию.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            var newTask = new TaskItem
+            {
+                Title = TaskTitleTextBox.Text,
+                Category = TaskCategoryComboBox.SelectedItem as Category,
+                DueDate = TaskDueDatePicker.SelectedDate.Value,
+                CreatedDate = DateTime.Now,
+                HasReminder = TaskHasReminderCheckBox.IsChecked ?? false,
+                IsRepeatable = TaskIsRepeatableCheckBox.IsChecked ?? false,
+                Notes = "Flags/BlueLents.png",
+                Attachment = null,
+                IsCompleted = false
+            };
+
+            Tasks.Add(newTask);
+            SaveTasks();
+
+            // Очищаем поля
+            TaskTitleTextBox.Text = string.Empty;
+            TaskCategoryComboBox.SelectedIndex = 0;
+            TaskDueDatePicker.SelectedDate = null;
+            TaskHasReminderCheckBox.IsChecked = false;
+            TaskIsRepeatableCheckBox.IsChecked = false;
+
+            // Обновляем список задач
             TaskView.Refresh();
+
+        // Закрываем нижнее меню
+#pragma warning disable CS0164 // Отсутствует ссылка на эту метку.
+        materialDesign: DrawerHost.CloseDrawerCommand.Execute(null, MainDrawerHost);
+#pragma warning restore CS0164 // Отсутствует ссылка на эту метку.
         }
 
         private void TaskListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -121,6 +175,7 @@ namespace ToDoListMaster
                 {
                     var taskDetailsWindow = new TaskDetailsWindow(selectedTask, Categories, Tasks, ArchiveTasks);
                     taskDetailsWindow.ShowDialog();
+                    TaskView.Refresh();
                 }
             }
         }
