@@ -1,23 +1,28 @@
-﻿using MaterialDesignThemes.Wpf;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.IO;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+using System.IO;
 
 namespace ToDoListMaster
 {
     public partial class MainWindow : Window
     {
-        public ObservableCollection<TaskItem> Tasks { get; set; }
-        public ObservableCollection<TaskItem> ArchiveTasks { get; set; }
-        public ObservableCollection<Category> Categories { get; set; }
-        public ICollectionView TaskView { get; set; }
+        private ObservableCollection<TaskItem> _tasks;
+        private ObservableCollection<TaskItem> _archiveTasks;
+        private ObservableCollection<Category> _categories;
         private const string TasksFilePath = "tasks.json";
         private const string ArchiveFilePath = "archive.json";
         private const string CategoriesFilePath = "categories.json";
@@ -25,196 +30,36 @@ namespace ToDoListMaster
         public MainWindow()
         {
             InitializeComponent();
+            _tasks = LoadTasks();
+            _archiveTasks = LoadArchive();
+            _categories = LoadCategories();
 
-            // Загружаем категории
-            Categories = LoadCategories();
-            if (Categories == null || Categories.Count == 0)
+            if (_categories == null || _categories.Count == 0)
             {
-                Categories = new ObservableCollection<Category>
+                _categories = new ObservableCollection<Category>
                 {
                     new Category { Id = 1, Name = "ВСЕ" },
                     new Category { Id = 2, Name = "РАБОТА" },
                     new Category { Id = 3, Name = "УЧЕБА" }
                 };
+                SaveCategories();
             }
 
-            // Загружаем задачи
-            Tasks = LoadTasks();
-            if (Tasks == null)
-            {
-                Tasks = new ObservableCollection<TaskItem>
-                {
-                    new TaskItem
-                    {
-                        Title = "Сдать долги по учебе",
-                        DueDate = new DateTime(2024, 10, 15),
-                        CreatedDate = DateTime.Now,
-                        Category = Categories[2],
-                        HasReminder = false,
-                        IsRepeatable = false,
-                        Notes = "Flags/BlueLents.png",
-                        Attachment = null,
-                        IsCompleted = true
-                    },
-                    new TaskItem
-                    {
-                        Title = "Сдать проект",
-                        DueDate = new DateTime(2024, 10, 20),
-                        CreatedDate = DateTime.Now,
-                        Category = Categories[1],
-                        HasReminder = false,
-                        IsRepeatable = false,
-                        Notes = "Flags/BlueLents.png",
-                        Attachment = null,
-                        IsCompleted = false
-                    }
-                };
-            }
-
-            // Загружаем архив
-            ArchiveTasks = LoadArchive();
-            if (ArchiveTasks == null)
-            {
-                ArchiveTasks = new ObservableCollection<TaskItem>();
-            }
-
-            // Переносим завершённые задачи в архив при загрузке
-            var completedTasks = Tasks.Where(t => t.IsCompleted).ToList();
-            foreach (var task in completedTasks)
-            {
-                Tasks.Remove(task);
-                ArchiveTasks.Add(task);
-            }
-
-            // Создаем ICollectionView для задач
-            TaskView = CollectionViewSource.GetDefaultView(Tasks);
-            TaskView.Filter = FilterTasks;
-
-            // Устанавливаем контекст данных
-            DataContext = this;
-
-            // Подписываемся на событие закрытия окна
-            Closing += MainWindow_Closing;
+            CategoryListBox.ItemsSource = _categories;
+            CategoryListBox.SelectedItem = _categories.FirstOrDefault(c => c.Name == "ВСЕ");
+            UpdateTaskList();
         }
 
-        private void OpenLeftDrawerButton_Click(object sender, RoutedEventArgs e)
+        private void UpdateTaskList()
         {
-            // Открываем левое меню
-            MainDrawerHost.IsLeftDrawerOpen = true;
-            // Закрываем нижнее меню, если оно открыто
-            MainDrawerHost.IsBottomDrawerOpen = false;
-        }
-
-        private void OpenAddTaskDrawerButton_Click(object sender, RoutedEventArgs e)
-        {
-            // Открываем нижнее меню
-            MainDrawerHost.IsBottomDrawerOpen = true;
-            // Закрываем левое меню, если оно открыто
-            MainDrawerHost.IsLeftDrawerOpen = false;
-        }
-
-        private void SaveTaskButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (string.IsNullOrWhiteSpace(TaskTitleTextBox.Text))
+            var selectedCategory = CategoryListBox.SelectedItem as Category;
+            if (selectedCategory == null || selectedCategory.Name == "ВСЕ")
             {
-                MessageBox.Show("Пожалуйста, введите название задачи.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
+                TasksListBox.ItemsSource = _tasks;
             }
-
-            if (TaskDueDatePicker.SelectedDate == null)
+            else
             {
-                MessageBox.Show("Пожалуйста, выберите дату выполнения.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            if (TaskCategoryComboBox.SelectedItem == null)
-            {
-                MessageBox.Show("Пожалуйста, выберите категорию.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            var newTask = new TaskItem
-            {
-                Title = TaskTitleTextBox.Text,
-                Category = TaskCategoryComboBox.SelectedItem as Category,
-                DueDate = TaskDueDatePicker.SelectedDate.Value,
-                CreatedDate = DateTime.Now,
-                HasReminder = TaskHasReminderCheckBox.IsChecked ?? false,
-                IsRepeatable = TaskIsRepeatableCheckBox.IsChecked ?? false,
-                Notes = "Flags/BlueLents.png",
-                Attachment = null,
-                IsCompleted = false
-            };
-
-            Tasks.Add(newTask);
-            SaveTasks();
-
-            // Очищаем поля
-            TaskTitleTextBox.Text = string.Empty;
-            TaskCategoryComboBox.SelectedIndex = 0;
-            TaskDueDatePicker.SelectedDate = null;
-            TaskHasReminderCheckBox.IsChecked = false;
-            TaskIsRepeatableCheckBox.IsChecked = false;
-
-            // Обновляем список задач
-            TaskView.Refresh();
-
-        // Закрываем нижнее меню
-#pragma warning disable CS0164 // Отсутствует ссылка на эту метку.
-        materialDesign: DrawerHost.CloseDrawerCommand.Execute(null, MainDrawerHost);
-#pragma warning restore CS0164 // Отсутствует ссылка на эту метку.
-        }
-
-        private void TaskListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            var listBox = sender as ListBox;
-            if (listBox != null && listBox.SelectedItem != null)
-            {
-                var selectedTask = listBox.SelectedItem as TaskItem;
-                if (selectedTask != null)
-                {
-                    var taskDetailsWindow = new TaskDetailsWindow(selectedTask, Categories, Tasks, ArchiveTasks);
-                    taskDetailsWindow.ShowDialog();
-                    TaskView.Refresh();
-                }
-            }
-        }
-
-        private bool FilterTasks(object item)
-        {
-            var task = item as TaskItem;
-            if (task == null) return false;
-
-            var selectedCategory = CategoryFilterComboBox.SelectedItem as Category;
-            if (selectedCategory == null) return true;
-
-            if (selectedCategory.Name == "ВСЕ") return true;
-
-            return task.Category != null && task.Category.Id == selectedCategory.Id;
-        }
-
-        private void CategoryFilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            TaskView.Refresh();
-        }
-
-        private void MainWindow_Closing(object sender, CancelEventArgs e)
-        {
-            SaveTasks();
-            SaveArchive();
-            SaveCategories();
-        }
-
-        private void SaveTasks()
-        {
-            try
-            {
-                string json = JsonConvert.SerializeObject(Tasks, Formatting.Indented);
-                File.WriteAllText(TasksFilePath, json);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error saving tasks: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                TasksListBox.ItemsSource = _tasks.Where(t => t.Category?.Id == selectedCategory.Id).ToList();
             }
         }
 
@@ -232,20 +77,7 @@ namespace ToDoListMaster
             {
                 MessageBox.Show($"Error loading tasks: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-            return null;
-        }
-
-        private void SaveArchive()
-        {
-            try
-            {
-                string json = JsonConvert.SerializeObject(ArchiveTasks, Formatting.Indented);
-                File.WriteAllText(ArchiveFilePath, json);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error saving archive: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            return new ObservableCollection<TaskItem>();
         }
 
         private ObservableCollection<TaskItem> LoadArchive()
@@ -262,20 +94,7 @@ namespace ToDoListMaster
             {
                 MessageBox.Show($"Error loading archive: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-            return null;
-        }
-
-        private void SaveCategories()
-        {
-            try
-            {
-                string json = JsonConvert.SerializeObject(Categories, Formatting.Indented);
-                File.WriteAllText(CategoriesFilePath, json);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error saving categories: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            return new ObservableCollection<TaskItem>();
         }
 
         private ObservableCollection<Category> LoadCategories()
@@ -292,49 +111,91 @@ namespace ToDoListMaster
             {
                 MessageBox.Show($"Error loading categories: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-            return null;
+            return new ObservableCollection<Category>();
+        }
+
+        private void SaveTasks()
+        {
+            try
+            {
+                string json = JsonConvert.SerializeObject(_tasks, Formatting.Indented);
+                File.WriteAllText(TasksFilePath, json);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error saving tasks: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void SaveArchive()
+        {
+            try
+            {
+                string json = JsonConvert.SerializeObject(_archiveTasks, Formatting.Indented);
+                File.WriteAllText(ArchiveFilePath, json);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error saving archive: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void SaveCategories()
+        {
+            try
+            {
+                string json = JsonConvert.SerializeObject(_categories, Formatting.Indented);
+                File.WriteAllText(CategoriesFilePath, json);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error saving categories: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void AddTaskButton_Click(object sender, RoutedEventArgs e)
+        {
+            var addTaskWindow = new AddTaskWindow(_categories, _tasks);
+            addTaskWindow.ShowDialog();
+            UpdateTaskList();
+        }
+
+        private void TasksListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            var listBox = sender as ListBox;
+            if (listBox != null && listBox.SelectedItem != null)
+            {
+                var selectedTask = listBox.SelectedItem as TaskItem;
+                if (selectedTask != null)
+                {
+                    var taskDetailsWindow = new TaskDetailsWindow(selectedTask, _categories, _tasks, _archiveTasks);
+                    taskDetailsWindow.ShowDialog();
+                    UpdateTaskList();
+                }
+            }
+        }
+
+        private void CategoryListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            UpdateTaskList();
         }
 
         private void OpenCalendarWindowButton_Click(object sender, RoutedEventArgs e)
         {
-            var calendarWindow = new CalendarWindow(Tasks, ArchiveTasks, Categories);
+            SaveTasks();
+            SaveArchive();
+            var calendarWindow = new CalendarWindow(_tasks, _archiveTasks, _categories);
             calendarWindow.Show();
             Close();
         }
 
         private void OpenProfileWindowButton_Click(object sender, RoutedEventArgs e)
         {
-            var profileWindow = new ProfileWindow(Tasks, ArchiveTasks);
+            SaveTasks();
+            SaveArchive();
+            var profileWindow = new ProfileWindow(_tasks, _archiveTasks);
             profileWindow.Show();
             Close();
         }
-
-        private void ArchiveMenuItem_Selected(object sender, RoutedEventArgs e)
-        {
-            var archiveWindow = new ArchiveWindow(Tasks, ArchiveTasks, Categories);
-            archiveWindow.Show();
-            Close();
-        }
-    }
-
-    public class TaskItem
-    {
-        public string Title { get; set; }
-        public Category Category { get; set; }
-        public DateTime DueDate { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public bool HasReminder { get; set; }
-        public DateTime? ReminderTime { get; set; }
-        public bool IsRepeatable { get; set; }
-        public string Notes { get; set; } = "Flags/BlueLents.png";
-        public string Attachment { get; set; }
-        public ObservableCollection<string> SubTasks { get; set; } = new ObservableCollection<string>();
-        public bool IsCompleted { get; set; }
-    }
-
-    public class Category
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
     }
 }

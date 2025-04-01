@@ -7,8 +7,8 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
         Title="MainWindow" Height="900" Width="460">
-    <materialDesign:DrawerHost x:Name="MainDrawerHost" OverlayBackground="#80000000">
-        <!-- Боковое меню слева -->
+    <materialDesign:DrawerHost x:Name="MainDrawerHost">
+        <!-- Боковое меню -->
         <materialDesign:DrawerHost.LeftDrawerContent>
             <Grid Width="390" Background="White">
                 <Grid.RowDefinitions>
@@ -31,7 +31,7 @@
                     <ListBoxItem Height="50">
                         <TextBlock Text="Избранные задачи" FontSize="16" Margin="20,0,0,0"/>
                     </ListBoxItem>
-                    <ListBoxItem Height="50" Selected="ArchiveMenuItem_Selected">
+                    <ListBoxItem Height="50">
                         <TextBlock Text="Архив" FontSize="16" Margin="20,0,0,0"/>
                     </ListBoxItem>
                     <ListBoxItem Height="50">
@@ -45,77 +45,51 @@
             </Grid>
         </materialDesign:DrawerHost.LeftDrawerContent>
 
-        <!-- Нижнее меню для добавления задачи -->
-        <materialDesign:DrawerHost.BottomDrawerContent>
-            <Grid Height="400" Background="White">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-
-                <!-- Заголовок -->
-                <TextBlock Grid.Row="0" Text="Добавить задачу" FontSize="20" FontWeight="Bold" 
-                           Margin="20,10,0,10" HorizontalAlignment="Left"/>
-
-                <!-- Форма для добавления задачи -->
-                <StackPanel Grid.Row="1" Margin="20">
-                    <TextBlock Text="Название задачи" FontSize="16" Margin="0,0,0,5"/>
-                    <TextBox x:Name="TaskTitleTextBox" Width="300" Height="30" FontSize="14" Margin="0,0,0,10"/>
-
-                    <TextBlock Text="Категория" FontSize="16" Margin="0,0,0,5"/>
-                    <ComboBox x:Name="TaskCategoryComboBox" Width="300" Height="30" FontSize="14" Margin="0,0,0,10"
-                              ItemsSource="{Binding Categories}" DisplayMemberPath="Name" SelectedValuePath="Id"/>
-
-                    <TextBlock Text="Дата выполнения" FontSize="16" Margin="0,0,0,5"/>
-                    <DatePicker x:Name="TaskDueDatePicker" Width="300" Height="30" FontSize="14" Margin="0,0,0,10"/>
-
-                    <CheckBox x:Name="TaskHasReminderCheckBox" Content="Установить напоминание" FontSize="14" Margin="0,0,0,10"/>
-                    <CheckBox x:Name="TaskIsRepeatableCheckBox" Content="Повторяющаяся задача" FontSize="14" Margin="0,0,0,10"/>
-                </StackPanel>
-
-                <!-- Кнопки -->
-                <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,10">
-                    <Button x:Name="SaveTaskButton" Content="Сохранить" Width="100" Height="30" 
-                            Background="#4FC3F7" Foreground="White" FontSize="14" BorderThickness="0" 
-                            Margin="0,0,10,0" Click="SaveTaskButton_Click"/>
-                    <Button Content="Отмена" Width="100" Height="30" 
-                            Background="Transparent" BorderThickness="0" FontSize="14" 
-                            Command="{x:Static materialDesign:DrawerHost.CloseDrawerCommand}" 
-                            CommandTarget="{Binding ElementName=MainDrawerHost}"/>
-                </StackPanel>
-            </Grid>
-        </materialDesign:DrawerHost.BottomDrawerContent>
-
         <!-- Основное содержимое -->
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <!-- Верхняя панель -->
-                <RowDefinition Height="Auto"/>
-                <!-- Поле поиска -->
+                <!-- Категории -->
                 <RowDefinition Height="*"/>
-                <!-- Основная область -->
+                <!-- Список задач -->
+                <RowDefinition Height="Auto"/>
+                <!-- Кнопка "Добавить" -->
                 <RowDefinition Height="Auto"/>
                 <!-- Нижняя панель -->
             </Grid.RowDefinitions>
 
-            <!-- Верхняя панель с вкладками -->
-            <Grid Grid.Row="0" Background="White" Height="100">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+            <!-- Категории (заменено на ListBox с горизонтальной ориентацией) -->
+            <ListBox x:Name="CategoryListBox" Grid.Row="0" Margin="20,20,20,10" 
+                     SelectionMode="Single" SelectionChanged="CategoryListBox_SelectionChanged">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="#E0F7FA" CornerRadius="15" Padding="10,5" Margin="5,0">
+                            <TextBlock Text="{Binding Name}" FontSize="14" Foreground="Black"/>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+            </ListBox>
 
-                <!-- ComboBox для выбора категории -->
-                <ComboBox x:Name="CategoryFilterComboBox" Width="110" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="16"
-                          ItemsSource="{Binding Categories}" DisplayMemberPath="Name" SelectedValuePath="Id" Margin="20,20,0,0"
-                          SelectionChanged="CategoryFilterComboBox_SelectionChanged"/>
-            </Grid>
-
-            <!-- Основная область для списка задач -->
-            <ListBox x:Name="TaskListBox" Grid.Row="2" Background="White" BorderThickness="0" Margin="10,37,10,10" 
-                     ItemsSource="{Binding TaskView}" MouseDoubleClick="TaskListBox_MouseDoubleClick">
+            <!-- Список задач -->
+            <ListBox x:Name="TasksListBox" Grid.Row="1" Background="White" BorderThickness="0" Margin="20,0,20,10" 
+                     MouseDoubleClick="TasksListBox_MouseDoubleClick">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Border Background="#E0F7FA" CornerRadius="10" Margin="5" Padding="10" HorizontalAlignment="Stretch">
@@ -148,25 +122,9 @@
                 </ListBox.ItemContainerStyle>
             </ListBox>
 
-            <!-- Нижняя панель навигации -->
-            <Grid Grid.Row="3" Background="White" Height="60">
-                <Grid.Effect>
-                    <DropShadowEffect Color="Black" Direction="270" ShadowDepth="2" BlurRadius="10" Opacity="0.3"/>
-                </Grid.Effect>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <Button Content="≡" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20"
-                            Click="OpenLeftDrawerButton_Click"/>
-                    <!-- Кнопка 📋 не имеет обработчика, так как мы уже в MainWindow -->
-                    <Button Content="📋" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20"/>
-                    <Button Content="📅" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20" Click="OpenCalendarWindowButton_Click"/>
-                    <Button Content="👤" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20" Click="OpenProfileWindowButton_Click"/>
-                </StackPanel>
-            </Grid>
-
-            <!-- Плавающая кнопка "+" для открытия нижнего меню -->
-            <Button x:Name="OpenAddTaskDrawerButton" Content="+" Width="60" Height="60" Background="#4FC3F7" Foreground="White" FontSize="30" 
-                    BorderThickness="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,23,21" Grid.Row="2"
-                    Click="OpenAddTaskDrawerButton_Click">
+            <!-- Кнопка "Добавить" -->
+            <Button x:Name="AddTaskButton" Grid.Row="2" Content="+" Width="60" Height="60" Background="#4FC3F7" Foreground="White" FontSize="30" 
+                    BorderThickness="0" HorizontalAlignment="Right" Margin="0,0,23,10" Click="AddTaskButton_Click">
                 <Button.Effect>
                     <DropShadowEffect Color="Black" ShadowDepth="5" BlurRadius="10" Opacity="0.5"/>
                 </Button.Effect>
@@ -184,6 +142,21 @@
                     </Style>
                 </Button.Style>
             </Button>
+
+            <!-- Нижняя панель навигации -->
+            <Grid Grid.Row="3" Background="White" Height="60">
+                <Grid.Effect>
+                    <DropShadowEffect Color="Black" Direction="270" ShadowDepth="2" BlurRadius="10" Opacity="0.3"/>
+                </Grid.Effect>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Button Content="≡" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20"
+                            Command="{x:Static materialDesign:DrawerHost.OpenDrawerCommand}" 
+                            CommandTarget="{Binding ElementName=MainDrawerHost}"/>
+                    <Button Content="📋" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20"/>
+                    <Button Content="📅" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20" Click="OpenCalendarWindowButton_Click"/>
+                    <Button Content="👤" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20" Click="OpenProfileWindowButton_Click"/>
+                </StackPanel>
+            </Grid>
         </Grid>
     </materialDesign:DrawerHost>
 </Window>
