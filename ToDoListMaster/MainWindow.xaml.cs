@@ -197,5 +197,12 @@ namespace ToDoListMaster
             profileWindow.Show();
             Close();
         }
+
+        private void Button_ClickCategory(object sender, RoutedEventArgs e)
+        {
+            var addcategoryWindow = new AddCategoryWindow(_categories);
+            addcategoryWindow.Show();
+            Close();
+        }
     }
 }

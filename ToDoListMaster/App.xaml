@@ -1,14 +1,39 @@
 ﻿<Application x:Class="ToDoListMaster.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:local="clr-namespace:ToDoListMaster"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-        <local:BooleanToYesNoConverter x:Key="BooleanToYesNoConverter"/>
-        <local:NullToAddConverter x:Key="NullToAddConverter"/>
-        <local:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-        <local:NullToHiddenConverter x:Key="NullToHiddenConverter"/>
-        <local:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
-        
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <materialDesign:BundledTheme BaseTheme="Light" PrimaryColor="DeepPurple" SecondaryColor="Lime" />
+
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign2.Defaults.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <local:BooleanToYesNoConverter x:Key="BooleanToYesNoConverter"/>
+                <local:NullToAddConverter x:Key="NullToAddConverter"/>
+                <local:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+                <local:NullToHiddenConverter x:Key="NullToHiddenConverter"/>
+                <local:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>
+
+<!--<Application.Resources>
+    <ResourceDictionary>
+        <ResourceDictionary.MergedDictionaries>
+            <materialDesign:BundledTheme BaseTheme="Light" PrimaryColor="DeepPurple" SecondaryColor="Lime" />
+
+            <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign2.Defaults.xaml" />
+        </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+</Application.Resources>
+</Application>-->
+
+
+<!--<local:BooleanToYesNoConverter x:Key="BooleanToYesNoConverter"/>
+<local:NullToAddConverter x:Key="NullToAddConverter"/>
+<local:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+<local:NullToHiddenConverter x:Key="NullToHiddenConverter"/>
+<local:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>-->

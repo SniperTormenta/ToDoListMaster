@@ -3,10 +3,64 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:ToDoListMaster"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="AddCategoryWindow" Height="450" Width="800">
-    <Grid>
-        
+        Title="AddCategoryWindow" Height="900" Width="460"
+        WindowStartupLocation="CenterScreen"
+        FontFamily="{materialDesign:MaterialDesignFont}">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Back Button -->
+        <Button Grid.Row="0" HorizontalAlignment="Left" 
+                Click="BackButton_Click">
+            <materialDesign:PackIcon Kind="ArrowLeft" Width="24" Height="24"/>
+        </Button>
+
+        <!-- Title: Управление категориями -->
+        <TextBlock Grid.Row="1" Text="УПРАВЛЕНИЕ КАТЕГОРИЯМИ" 
+                   FontSize="20" FontWeight="Bold" 
+                   Margin="0,20,0,10" HorizontalAlignment="Center"/>
+
+        <!-- Subtitle: Категории, отображаемые на главной странице -->
+        <TextBlock Grid.Row="2" Text="КАТЕГОРИИ, ОТОБРАЖАЕМЫЕ НА ГЛАВНОЙ СТРАНИЦЕ" 
+                   FontSize="14" Margin="0,0,0,20" HorizontalAlignment="Center"/>
+
+        <!-- ListBox for Categories -->
+        <ListBox x:Name="CategoryListBox" Grid.Row="2" Margin="0,40,0,0" 
+                 ItemsSource="{Binding Categories}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="{Binding Name}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="{Binding Id}" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                        <!-- Добавляем иконку "More" (три точки) -->
+                        <materialDesign:PackIcon Grid.Column="1" Kind="DotsVertical" 
+                                                 Width="20" Height="20" Margin="10,0,0,0" 
+                                                 VerticalAlignment="Center"/>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+           
+        </ListBox>
+
+        <!-- Add Category Button -->
+        <Button x:Name="AddCategoryButton" Grid.Row="3" Content="Создать" 
+                Margin="0,20,0,0" HorizontalAlignment="Center" 
+                Click="AddCategoryButton_Click"
+                materialDesign:ButtonAssist.CornerRadius="10"
+                Padding="15,5"
+                Style="{DynamicResource MaterialDesignRaisedButton}"
+                FontSize="14" Background="#FF65C2CE" BorderBrush="{x:Null}"/>
     </Grid>
 </Window>

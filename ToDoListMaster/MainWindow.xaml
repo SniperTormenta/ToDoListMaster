@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:ToDoListMaster"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
         Title="MainWindow" Height="900" Width="460">
     <materialDesign:DrawerHost x:Name="MainDrawerHost">
         <!-- Боковое меню -->
@@ -21,7 +22,7 @@
                 </Grid.RowDefinitions>
 
                 <!-- Аквамариновый прямоугольник с заголовком -->
-                <Border Grid.Row="0" Background="#00CED1">
+                <Border Grid.Row="0" Background="#5CA4DB">
                     <TextBlock Text="ToDoList Master" FontSize="20" FontWeight="Bold" Foreground="White" 
                                VerticalAlignment="Center" HorizontalAlignment="Left" Margin="20,0,0,0"/>
                 </Border>
@@ -32,11 +33,15 @@
                         <TextBlock Text="Избранные задачи" FontSize="16" Margin="20,0,0,0"/>
                     </ListBoxItem>
                     <ListBoxItem Height="50">
+                        <Button Content="Категории" Foreground="Black" FontSize="16" Click="Button_ClickCategory" Width="360" Background="{x:Null}" BorderBrush="{x:Null}" FontWeight="Normal" />
+                    </ListBoxItem>
+                    <ListBoxItem Height="50">
                         <TextBlock Text="Архив" FontSize="16" Margin="20,0,0,0"/>
                     </ListBoxItem>
                     <ListBoxItem Height="50">
                         <TextBlock Text="Обратная связь" FontSize="16" Margin="20,0,0,0"/>
                     </ListBoxItem>
+
                 </ListBox>
 
                 <!-- Версия приложения -->
@@ -44,7 +49,7 @@
                            HorizontalAlignment="Left" Margin="20,0,0,10"/>
             </Grid>
         </materialDesign:DrawerHost.LeftDrawerContent>
-
+        
         <!-- Основное содержимое -->
         <Grid>
             <Grid.RowDefinitions>
@@ -68,8 +73,8 @@
                 </ListBox.ItemsPanel>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Border Background="#E0F7FA" CornerRadius="15" Padding="10,5" Margin="5,0">
-                            <TextBlock Text="{Binding Name}" FontSize="14" Foreground="Black"/>
+                        <Border Background="#CEDDFF" CornerRadius="15" Padding="10,5" Margin="5,0">
+                            <TextBlock Text="{Binding Name}" FontSize="14" Foreground="GhostWhite"/>
                         </Border>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
@@ -92,7 +97,7 @@
                      MouseDoubleClick="TasksListBox_MouseDoubleClick">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Border Background="#E0F7FA" CornerRadius="10" Margin="5" Padding="10" HorizontalAlignment="Stretch">
+                        <Border Background="#E7EEFF" CornerRadius="10" Margin="5" Padding="10" HorizontalAlignment="Stretch">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -100,8 +105,8 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Orientation="Horizontal" Grid.Column="0">
                                     <TextBlock Text="{Binding Title}" FontSize="16" Margin="5"/>
-                                    <TextBlock Text="{Binding DueDate, StringFormat='Due: {0:dd.MM.yyyy}'}" FontSize="14" Foreground="Gray" Margin="5"/>
-                                    <TextBlock Text="{Binding Category.Name}" FontSize="14" Foreground="Blue" Margin="5"/>
+                                    <TextBlock Text="{Binding DueDate, StringFormat='До: {0:dd.MM.yyyy}'}" FontSize="14" Foreground="#960B0B" Margin="5"/>
+                                    <TextBlock Text="{Binding Category.Name}" FontSize="14" Foreground="Black" Margin="5"/>
                                 </StackPanel>
                                 <Image Grid.Column="1" Width="20" Height="20" Margin="5" Source="{Binding Notes}"/>
                             </Grid>
@@ -123,8 +128,8 @@
             </ListBox>
 
             <!-- Кнопка "Добавить" -->
-            <Button x:Name="AddTaskButton" Grid.Row="2" Content="+" Width="60" Height="60" Background="#4FC3F7" Foreground="White" FontSize="30" 
-                    BorderThickness="0" HorizontalAlignment="Right" Margin="0,0,23,10" Click="AddTaskButton_Click">
+            <Button x:Name="AddTaskButton" Grid.Row="2" Content="+" Width="60" Height="60" Background="#5CA4DB" Foreground="White" FontSize="30" 
+                    BorderThickness="0" HorizontalAlignment="Right" Margin="0,0,23,10" Click="AddTaskButton_Click" BorderBrush="{x:Null}">
                 <Button.Effect>
                     <DropShadowEffect Color="Black" ShadowDepth="5" BlurRadius="10" Opacity="0.5"/>
                 </Button.Effect>
@@ -151,10 +156,10 @@
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <Button Content="≡" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20"
                             Command="{x:Static materialDesign:DrawerHost.OpenDrawerCommand}" 
-                            CommandTarget="{Binding ElementName=MainDrawerHost}"/>
-                    <Button Content="📋" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20"/>
-                    <Button Content="📅" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20" Click="OpenCalendarWindowButton_Click"/>
-                    <Button Content="👤" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20" Click="OpenProfileWindowButton_Click"/>
+                            CommandTarget="{Binding ElementName=MainDrawerHost}" Foreground="Black"/>
+                    <Button Content="📋" Width="60" Height="60" Background="{x:Null}" BorderThickness="0" FontSize="20" Foreground="Black"/>
+                    <Button Content="📅" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20" Click="OpenCalendarWindowButton_Click" Foreground="Black"/>
+                    <Button Content="👤" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20" Click="OpenProfileWindowButton_Click" Foreground="Black"/>
                 </StackPanel>
             </Grid>
         </Grid>
