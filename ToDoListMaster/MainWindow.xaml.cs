@@ -15,6 +15,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO;
+using MaterialDesignThemes.Wpf;
+using System.ComponentModel;
 
 namespace ToDoListMaster
 {
@@ -23,6 +25,7 @@ namespace ToDoListMaster
         private ObservableCollection<TaskItem> _tasks;
         private ObservableCollection<TaskItem> _archiveTasks;
         private ObservableCollection<Category> _categories;
+        public ICollectionView TaskView { get; set; }
         private const string TasksFilePath = "tasks.json";
         private const string ArchiveFilePath = "archive.json";
         private const string CategoriesFilePath = "categories.json";
@@ -153,11 +156,64 @@ namespace ToDoListMaster
             }
         }
 
-        private void AddTaskButton_Click(object sender, RoutedEventArgs e)
+        private void OpenAddTaskDrawerButton_Click(object sender, RoutedEventArgs e)
         {
-            var addTaskWindow = new AddTaskWindow(_categories, _tasks);
-            addTaskWindow.ShowDialog();
-            UpdateTaskList();
+            // Открываем нижнее меню
+            MainDrawerHost.IsBottomDrawerOpen = true;
+            // Закрываем левое меню, если оно открыто
+            MainDrawerHost.IsLeftDrawerOpen = false;
+        }
+
+        private void SaveTaskButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(TaskTitleTextBox.Text))
+            {
+                MessageBox.Show("Пожалуйста, введите название задачи.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (TaskDueDatePicker.SelectedDate == null)
+            {
+                MessageBox.Show("Пожалуйста, выберите дату выполнения.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (TaskCategoryComboBox.SelectedItem == null)
+            {
+                MessageBox.Show("Пожалуйста, выберите категорию.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            var newTask = new TaskItem
+            {
+                Title = TaskTitleTextBox.Text,
+                Category = TaskCategoryComboBox.SelectedItem as Category,
+                DueDate = TaskDueDatePicker.SelectedDate.Value,
+                CreatedDate = DateTime.Now,
+                HasReminder = TaskHasReminderCheckBox.IsChecked ?? false,
+                IsRepeatable = TaskIsRepeatableCheckBox.IsChecked ?? false,
+                Notes = "Flags/BlueLents.png",
+                Attachment = null,
+                IsCompleted = false
+            };
+
+            _tasks.Add(newTask);
+            SaveTasks();
+
+            // Очищаем поля
+            TaskTitleTextBox.Text = string.Empty;
+            TaskCategoryComboBox.SelectedIndex = 0;
+            TaskDueDatePicker.SelectedDate = null;
+            TaskHasReminderCheckBox.IsChecked = false;
+            TaskIsRepeatableCheckBox.IsChecked = false;
+
+            // Обновляем список задач
+            TaskView.Refresh();
+
+        // Закрываем нижнее меню
+#pragma warning disable CS0164 // Отсутствует ссылка на эту метку.
+        materialDesign: DrawerHost.CloseDrawerCommand.Execute(null, MainDrawerHost);
+#pragma warning restore CS0164 // Отсутствует ссылка на эту метку.
         }
 
         private void TasksListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -204,5 +260,17 @@ namespace ToDoListMaster
             addcategoryWindow.Show();
             Close();
         }
+
+        private void OpenLeftDrawerButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Открываем левое меню
+            MainDrawerHost.IsLeftDrawerOpen = true;
+            // Закрываем нижнее меню, если оно открыто
+            MainDrawerHost.IsBottomDrawerOpen = false;
+        }
+
+
+
+
     }
 }
