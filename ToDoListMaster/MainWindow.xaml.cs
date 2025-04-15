@@ -268,6 +268,7 @@ namespace ToDoListMaster
             // Закрываем нижнее меню, если оно открыто
             MainDrawerHost.IsBottomDrawerOpen = false;
         }
+        //11
 
 
 
