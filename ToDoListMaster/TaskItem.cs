@@ -20,4 +20,5 @@ namespace ToDoListMaster
         public bool IsCompleted { get; set; }
         public List<string> SubTasks { get; set; } = new List<string>();
     }
+
 }

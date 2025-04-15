@@ -25,6 +25,7 @@ namespace ToDoListMaster
         private ObservableCollection<TaskItem> _tasks;
         private ObservableCollection<TaskItem> _archiveTasks;
         private ObservableCollection<Category> _categories;
+        public ObservableCollection<Category> Categories => _categories;
         public ICollectionView TaskView { get; set; }
         private const string TasksFilePath = "tasks.json";
         private const string ArchiveFilePath = "archive.json";
@@ -33,6 +34,7 @@ namespace ToDoListMaster
         public MainWindow()
         {
             InitializeComponent();
+            this.DataContext = this;
             _tasks = LoadTasks();
             _archiveTasks = LoadArchive();
             _categories = LoadCategories();
@@ -50,6 +52,8 @@ namespace ToDoListMaster
 
             CategoryListBox.ItemsSource = _categories;
             CategoryListBox.SelectedItem = _categories.FirstOrDefault(c => c.Name == "ВСЕ");
+            CategoryComboBox.DisplayMemberPath = "Name";
+            CategoryComboBox.SelectedIndex = 0;
             UpdateTaskList();
         }
 
@@ -178,16 +182,17 @@ namespace ToDoListMaster
                 return;
             }
 
-            if (TaskCategoryComboBox.SelectedItem == null)
+            if (CategoryComboBox.SelectedItem == null)
             {
-                MessageBox.Show("Пожалуйста, выберите категорию.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
+                //MessageBox.Show("Пожалуйста, выберите категорию.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                CategoryComboBox.SelectedIndex = 0;
+                //return;
             }
 
             var newTask = new TaskItem
             {
                 Title = TaskTitleTextBox.Text,
-                Category = TaskCategoryComboBox.SelectedItem as Category,
+                Category = CategoryComboBox.SelectedItem as Category,
                 DueDate = TaskDueDatePicker.SelectedDate.Value,
                 CreatedDate = DateTime.Now,
                 HasReminder = TaskHasReminderCheckBox.IsChecked ?? false,
@@ -202,7 +207,7 @@ namespace ToDoListMaster
 
             // Очищаем поля
             TaskTitleTextBox.Text = string.Empty;
-            TaskCategoryComboBox.SelectedIndex = 0;
+            CategoryComboBox.SelectedIndex = 0;
             TaskDueDatePicker.SelectedDate = null;
             TaskHasReminderCheckBox.IsChecked = false;
             TaskIsRepeatableCheckBox.IsChecked = false;
@@ -268,7 +273,11 @@ namespace ToDoListMaster
             // Закрываем нижнее меню, если оно открыто
             MainDrawerHost.IsBottomDrawerOpen = false;
         }
-        //11
+
+        private void TaskCategoryComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+        
+        }
 
 
 
