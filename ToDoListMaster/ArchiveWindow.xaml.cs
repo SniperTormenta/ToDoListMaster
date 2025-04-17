@@ -121,5 +121,12 @@ namespace ToDoListMaster
         {
             // Мы уже в окне архива, ничего не делаем
         }
+
+        private void BackToMainWindow_Click(object sender, RoutedEventArgs e)
+        {
+            var BackToMain = new MainWindow();
+            BackToMain.Show();
+            Close();
+        }
     }
 }

@@ -19,7 +19,7 @@
 
         <!-- Back Button -->
         <Button Grid.Row="0" HorizontalAlignment="Left" 
-                Click="BackButton_Click">
+                Click="BackButton_Click" Background="#FF5CA4DB" BorderBrush="#FF4F8DBD">
             <materialDesign:PackIcon Kind="ArrowLeft" Width="24" Height="24"/>
         </Button>
 
@@ -61,6 +61,6 @@
                 materialDesign:ButtonAssist.CornerRadius="10"
                 Padding="15,5"
                 Style="{DynamicResource MaterialDesignRaisedButton}"
-                FontSize="14" Background="#FF65C2CE" BorderBrush="{x:Null}"/>
+                FontSize="14" Background="#FF5CA4DB" BorderBrush="{x:Null}"/>
     </Grid>
 </Window>

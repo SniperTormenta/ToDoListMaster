@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:ToDoListMaster"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
         Title="CalendarWindow" Height="900" Width="460">
     <materialDesign:DrawerHost x:Name="CalendarDrawerHost">
         <!-- Боковое меню -->
@@ -147,7 +148,7 @@
             </ListBox>
 
             <!-- Кнопка "Добавить" -->
-            <Button x:Name="AddTaskButton" Grid.Row="2" Content="+" Width="60" Height="60" Background="#4FC3F7" Foreground="White" FontSize="30" 
+            <Button x:Name="AddTaskButton" Grid.Row="2" Content="+" Width="60" Height="60" Background="#FF5CA4DB" Foreground="White" FontSize="30" 
                     BorderThickness="0" HorizontalAlignment="Right" Margin="0,0,23,10" Click="AddTaskButton_Click">
                 <Button.Effect>
                     <DropShadowEffect Color="Black" ShadowDepth="5" BlurRadius="10" Opacity="0.5"/>
@@ -173,12 +174,12 @@
                     <DropShadowEffect Color="Black" Direction="270" ShadowDepth="2" BlurRadius="10" Opacity="0.3"/>
                 </Grid.Effect>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <Button Content="≡" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20"
+                    <Button Content="≡" Width="60" Height="60" Background="White" BorderThickness="0" FontSize="20"
                             Command="{x:Static materialDesign:DrawerHost.OpenDrawerCommand}" 
-                            CommandTarget="{Binding ElementName=CalendarDrawerHost}"/>
-                    <Button Content="📋" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20" Click="OpenMainWindowButton_Click"/>
-                    <Button Content="📅" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20"/>
-                    <Button Content="👤" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20" Click="OpenProfileWindowButton_Click"/>
+                            CommandTarget="{Binding ElementName=CalendarDrawerHost}" Foreground="Black"/>
+                    <Button Content="📋" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20" Click="OpenMainWindowButton_Click" Foreground="Black"/>
+                    <Button Content="📅" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20" Foreground="Black"/>
+                    <Button Content="👤" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20" Click="OpenProfileWindowButton_Click" Foreground="Black"/>
                 </StackPanel>
             </Grid>
         </Grid>

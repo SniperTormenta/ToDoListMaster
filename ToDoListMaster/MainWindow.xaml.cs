@@ -279,8 +279,11 @@ namespace ToDoListMaster
         
         }
 
-
-
-
+        private void ArchiveButton_Click(object sender, RoutedEventArgs e)
+        {
+            var archiveWindow = new ArchiveWindow(_tasks, _archiveTasks, _categories);
+            archiveWindow.Show();
+            Close();
+        }
     }
 }

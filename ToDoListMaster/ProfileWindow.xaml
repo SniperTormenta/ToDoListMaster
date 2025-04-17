@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:ToDoListMaster"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
         Title="ProfileWindow" Height="900" Width="460">
     <materialDesign:DrawerHost x:Name="ProfileDrawerHost">
         <!-- Боковое меню -->
@@ -74,7 +75,7 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Количество завершённых задач -->
-                <Border Grid.Column="0" Background="#E0F7FA" CornerRadius="10" Margin="0,0,5,0" Padding="15">
+                <Border Grid.Column="0" Background="#FF5CA4DB" CornerRadius="10" Margin="0,0,5,0" Padding="15">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                         <TextBlock Text="Завершённые: " FontSize="16"/>
                         <TextBlock x:Name="CompletedTasksTextBlock" Text="0" FontSize="16" FontWeight="Bold"/>
@@ -82,7 +83,7 @@
                 </Border>
 
                 <!-- Количество незавершённых задач -->
-                <Border Grid.Column="1" Background="#E0F7FA" CornerRadius="10" Margin="5,0,0,0" Padding="15">
+                <Border Grid.Column="1" Background="#FF5CA4DB" CornerRadius="10" Margin="5,0,0,0" Padding="15">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                         <TextBlock Text="Незавершённые: " FontSize="16"/>
                         <TextBlock x:Name="IncompleteTasksTextBlock" Text="0" FontSize="16" FontWeight="Bold"/>
@@ -98,10 +99,10 @@
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <Button Content="≡" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20"
                             Command="{x:Static materialDesign:DrawerHost.OpenDrawerCommand}" 
-                            CommandTarget="{Binding ElementName=ProfileDrawerHost}"/>
-                    <Button Content="📋" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20" Click="OpenMainWindowButton_Click"/>
-                    <Button Content="📅" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20" Click="OpenCalendarWindowButton_Click"/>
-                    <Button Content="👤" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20"/>
+                            CommandTarget="{Binding ElementName=ProfileDrawerHost}" Foreground="Black"/>
+                    <Button Content="📋" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20" Click="OpenMainWindowButton_Click" Foreground="Black"/>
+                    <Button Content="📅" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20" Click="OpenCalendarWindowButton_Click" Foreground="Black"/>
+                    <Button Content="👤" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20" Foreground="Black"/>
                 </StackPanel>
             </Grid>
         </Grid>

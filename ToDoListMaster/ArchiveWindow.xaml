@@ -6,45 +6,10 @@
         xmlns:local="clr-namespace:ToDoListMaster"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
         Title="ArchiveWindow" Height="900" Width="460">
     <materialDesign:DrawerHost x:Name="ArchiveDrawerHost">
         <!-- Боковое меню -->
-        <materialDesign:DrawerHost.LeftDrawerContent>
-            <Grid Width="390" Background="White">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="60"/>
-                    <!-- Заголовок -->
-                    <RowDefinition Height="*"/>
-                    <!-- Пункты меню -->
-                    <RowDefinition Height="Auto"/>
-                    <!-- Версия -->
-                </Grid.RowDefinitions>
-
-                <!-- Аквамариновый прямоугольник с заголовком -->
-                <Border Grid.Row="0" Background="#00CED1">
-                    <TextBlock Text="ToDoList Master" FontSize="20" FontWeight="Bold" Foreground="White" 
-                               VerticalAlignment="Center" HorizontalAlignment="Left" Margin="20,0,0,0"/>
-                </Border>
-
-                <!-- Пункты меню -->
-                <ListBox Grid.Row="1" BorderThickness="0" Background="Transparent">
-                    <ListBoxItem Height="50">
-                        <TextBlock Text="Избранные задачи" FontSize="16" Margin="20,0,0,0"/>
-                    </ListBoxItem>
-                    <ListBoxItem Height="50" Selected="ArchiveMenuItem_Selected">
-                        <TextBlock Text="Архив" FontSize="16" Margin="20,0,0,0"/>
-                    </ListBoxItem>
-                    <ListBoxItem Height="50">
-                        <TextBlock Text="Обратная связь" FontSize="16" Margin="20,0,0,0"/>
-                    </ListBoxItem>
-                </ListBox>
-
-                <!-- Версия приложения -->
-                <TextBlock Grid.Row="2" Text="Beta 1.0.0" FontSize="12" Foreground="#808080" 
-                           HorizontalAlignment="Left" Margin="20,0,0,10"/>
-            </Grid>
-        </materialDesign:DrawerHost.LeftDrawerContent>
-
         <!-- Основное содержимое -->
         <Grid>
             <Grid.RowDefinitions>
@@ -57,24 +22,22 @@
             </Grid.RowDefinitions>
 
             <!-- Заголовок -->
-            <TextBlock Grid.Row="0" Text="Архив завершённых задач" FontSize="24" FontWeight="Bold" 
-                       Margin="20,20,0,10" HorizontalAlignment="Left"/>
+            <TextBlock Grid.Row="0" Text="Архив завершённых задач" FontSize="24" FontWeight="Bold" Margin="0,20,0,10" HorizontalAlignment="Center"/>
 
             <!-- Список завершённых задач -->
-            <ListBox x:Name="ArchiveListBox" Grid.Row="1" Background="White" BorderThickness="0" Margin="10,0,10,10" 
+            <ListBox x:Name="ArchiveListBox" Grid.Row="1" Background="White" BorderThickness="0" Margin="10,0,10,44" 
                      MouseDoubleClick="ArchiveListBox_MouseDoubleClick">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Border Background="#E0F7FA" CornerRadius="10" Margin="5" Padding="10" HorizontalAlignment="Stretch">
+                        <Border Background="#f4fafb" CornerRadius="10" Margin="5" Padding="10" HorizontalAlignment="Stretch">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Orientation="Horizontal" Grid.Column="0">
-                                    <TextBlock Text="{Binding Title}" FontSize="16" Margin="5"/>
-                                    <TextBlock Text="{Binding DueDate, StringFormat='Due: {0:dd.MM.yyyy}'}" FontSize="14" Foreground="Gray" Margin="5"/>
-                                    <TextBlock Text="{Binding Category.Name}" FontSize="14" Foreground="Blue" Margin="5"/>
+                                    <TextBlock Text="{Binding Title}" FontSize="16" Margin="5" Foreground="#292929"/>
+                                    <TextBlock Text="{Binding Category.Name}" FontSize="14" Foreground="#292929" Margin="5"/>
                                 </StackPanel>
                                 <Image Grid.Column="1" Width="20" Height="20" Margin="5" Source="{Binding Notes}"/>
                             </Grid>
@@ -94,21 +57,8 @@
                     </Style>
                 </ListBox.ItemContainerStyle>
             </ListBox>
+            <Button x:Name="BackToMainWindow" Content="←" Margin="32,756,380,34" Grid.Row="1" Background="#FF5CA4DB" BorderBrush="#FF538FBD" Click="BackToMainWindow_Click" Foreground="White"  />
 
-            <!-- Нижняя панель навигации -->
-            <Grid Grid.Row="2" Background="White" Height="60">
-                <Grid.Effect>
-                    <DropShadowEffect Color="Black" Direction="270" ShadowDepth="2" BlurRadius="10" Opacity="0.3"/>
-                </Grid.Effect>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <Button Content="≡" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20"
-                            Command="{x:Static materialDesign:DrawerHost.OpenDrawerCommand}" 
-                            CommandTarget="{Binding ElementName=ArchiveDrawerHost}"/>
-                    <Button Content="📋" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20" Click="OpenMainWindowButton_Click"/>
-                    <Button Content="📅" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20" Click="OpenCalendarWindowButton_Click"/>
-                    <Button Content="👤" Width="60" Height="60" Background="Transparent" BorderThickness="0" FontSize="20" Click="OpenProfileWindowButton_Click"/>
-                </StackPanel>
-            </Grid>
         </Grid>
     </materialDesign:DrawerHost>
 </Window>

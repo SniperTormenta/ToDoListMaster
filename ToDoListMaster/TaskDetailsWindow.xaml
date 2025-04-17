@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:ToDoListMaster"
         mc:Ignorable="d"
         Background="#F5F5F5"
+        WindowStartupLocation="CenterScreen"
         Title="TaskDetailsWindow" Height="600" Width="400">
     <Grid Margin="20">
         <Grid.RowDefinitions>
@@ -43,7 +44,7 @@
             <Button Grid.Column="0" Content="←" Width="30" Height="30" Background="Transparent" BorderThickness="0" Click="BackButton_Click"/>
             <ComboBox Grid.Column="1" x:Name="CategoryComboBox" Width="150" Height="30" FontSize="14" 
                       ItemsSource="{Binding Categories}" DisplayMemberPath="Name" SelectedValuePath="Id" 
-                      HorizontalAlignment="Left" Margin="10,0" SelectionChanged="CategoryComboBox_SelectionChanged"/>
+                      HorizontalAlignment="Left" Margin="10,0" SelectionChanged="CategoryComboBox_SelectionChanged" BorderBrush="{x:Null}" Foreground="{x:Null}" Background="{x:Null}"/>
             <Button Grid.Column="2" Content="🗑️" Width="30" Height="30" Background="Transparent" BorderThickness="0" Click="DeleteTaskButton_Click"/>
         </Grid>
 
@@ -85,14 +86,14 @@
                 <StackPanel x:Name="ReminderDisplayPanel" Orientation="Horizontal" 
                             Visibility="{Binding ReminderTime, Converter={StaticResource NullToHiddenConverter}}">
                     <TextBlock Text="{Binding ReminderTime, StringFormat='yyyy/MM/dd HH:mm'}" FontSize="14" Foreground="Gray" Margin="0,0,10,0"/>
-                    <Button Content="Изменить" Width="70" Click="EditReminderButton_Click"/>
+                    <Button Content="Изменить" Width="70" Click="EditReminderButton_Click" Background="#FF5CA4DB" BorderBrush="#FF5699CC"/>
                 </StackPanel>
                 <StackPanel x:Name="ReminderSetPanel" Orientation="Horizontal" 
                             Visibility="{Binding ReminderTime, ConverterParameter=invert, Converter={StaticResource NullToVisibilityConverter}}">
                     <DatePicker x:Name="ReminderDatePicker" SelectedDate="{Binding ReminderTime}" Width="150"/>
                     <TextBox x:Name="ReminderTimeTextBox" Width="50" Margin="5,0" Text="HH:mm" Foreground="Gray" 
                              GotFocus="ReminderTimeTextBox_GotFocus" LostFocus="ReminderTimeTextBox_LostFocus"/>
-                    <Button Content="Set" Width="50" Click="SetReminderButton_Click"/>
+                    <Button Content="Set" Width="50" Click="SetReminderButton_Click" BorderBrush="#FF5596C8" Background="#FF5CA4DB"/>
                 </StackPanel>
             </StackPanel>
         </StackPanel>

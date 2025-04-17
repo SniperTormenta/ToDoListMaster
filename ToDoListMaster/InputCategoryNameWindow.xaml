@@ -27,9 +27,9 @@
         <!-- Buttons -->
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
             <Button Content="ОК" 
-                    Margin="0,0,10,0" Click="OkButton_Click"/>
+                    Margin="0,0,10,0" Click="OkButton_Click" Background="#5CA4DB" BorderBrush="#FF5CA2D8"/>
             <Button Content="Отмена"
-                    Click="CancelButton_Click"/>
+                    Click="CancelButton_Click" Background="#5CA4DB" BorderBrush="#FF5296CA" />
         </StackPanel>
     </Grid>
 </Window>
